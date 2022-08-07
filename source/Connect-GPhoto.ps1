@@ -101,8 +101,6 @@ Begin {
             grant_type = "authorization_code"; # Fixed value
         };
 
-        $body
-
         $tokens = Invoke-RestMethod -Uri $requestUri -Method POST -Body $body;
 
         # Store refreshToken
@@ -110,6 +108,8 @@ Begin {
 
         # Store accessToken
         Set-Content $PSScriptRoot"\accessToken.txt" $tokens.access_token
+
+        return $body
     }
 }
 
@@ -118,7 +118,17 @@ Process {
 
     $creds = (Get-GoogleApiCredentials -JsonCredentialsFilePath $GoogleApiJSONCredentialsFilePath)
 
-    $authCode = Connect-GooglePhotosApi -Creds $creds -AuthCode $authCode -Output
+    $tbd = Connect-GooglePhotosApi -Creds $creds -AuthCode $authCode -Output
+
+    Write-Host "----"
+    Write-Host "$($tbd.Values.Count)"
+    Write-Host "----"
+    
+    $tbd.Values | ForEach-Object {
+        $value = $_
+
+        Write-Host "  $($value)"
+    }
 
     Write-Host "----" -ForegroundColor Blue
 }
